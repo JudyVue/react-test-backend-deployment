@@ -12,6 +12,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('./src/main');
 } else {
   console.log('PRODUCTION SETTINGS');
+  // this is here
   require('./build/main'); /*eslint-disable-line*/
 }
 
