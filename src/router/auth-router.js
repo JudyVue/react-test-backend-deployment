@@ -23,7 +23,10 @@ authRouter.post('/api/signup', (request, response, next) => {
           // Math is like this: days * milliseconds * minutes * seconds * hours
           // This gives us the number of milliseconds until our token cookie expires
           // setting a browser cookie this way only works on localhost, this will not work on the Heroku free tier, you will have a purchase a domain name to set a browser cookie on live deployment
-          const cookieOptions = { maxAge: 7 * 1000 * 60 * 60 * 24 };
+          const cookieOptions = { 
+            maxAge: 7 * 1000 * 60 * 60 * 24,
+            domain: process.env.CORS_ORIGINS,
+          };
           response.cookie('X-401d25-Token', token, cookieOptions);
           return response.json({ token });
         })
@@ -40,7 +43,10 @@ authRouter.get('/api/login', basicAuthMiddleware, (request, response, next) => {
         .then((token) => {
           logger.log(logger.INFO, `AUTH-ROUTER /api/login - responding with a 200 status code and a token ${token}`);
           // TODO: add response.cookie here
-          const cookieOptions = { maxAge: 7 * 1000 * 60 * 60 * 24 };
+          const cookieOptions = { 
+            maxAge: 7 * 1000 * 60 * 60 * 24,
+            domain: process.env.CORS_ORIGINS,
+          };
           response.cookie('X-401d25-Token', token, cookieOptions);
           return response.json({ token });
         })
