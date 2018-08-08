@@ -47,6 +47,7 @@ authRouter.get('/api/login', basicAuthMiddleware, (request, response, next) => {
             maxAge: 7 * 1000 * 60 * 60 * 24,
             domain: process.env.CORS_ORIGINS,
           };
+          console.log(process.env.CORS_ORIGINS, 'ORIGINS!!!');
           response.cookie('X-401d25-Token', token, cookieOptions);
           return response.json({ token });
         })
