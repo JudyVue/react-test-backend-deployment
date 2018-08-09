@@ -50,7 +50,7 @@ authRouter.get('/api/login', basicAuthMiddleware, (request, response, next) => {
             path: '/dashboard',
           };
           console.log(process.env.CLIENT_URL, 'ORIGINS!!!');
-          response.cookie('X-401d25-Token', token, cookieOptions);
+          console.log(response.cookie('X-401d25-Token', token, cookieOptions));
           return response.json({ token });
         })
         .catch(next);
