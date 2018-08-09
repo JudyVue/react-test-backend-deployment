@@ -84,7 +84,7 @@ googleOAuthRouter.get('/api/oauth/google', (request, response, next) => {
                       maxAge: 7 * 1000 * 60 * 60 * 24,
                       domain: process.env.CLIENT_URL,
                     };
-                    response.cookie('X-401d25-Token', signedToken, cookieOptions);
+                    response.cookie('X-401d25-Token', signedToken);
                     response.redirect(process.env.CLIENT_URL);
                   })
                   .catch(next);
@@ -96,10 +96,11 @@ googleOAuthRouter.get('/api/oauth/google', (request, response, next) => {
             .then((token) => {
               const cookieOptions = { 
                 maxAge: 7 * 1000 * 60 * 60 * 24,
-                domain: process.env.CORS_ORIGINS,
+                domain: process.env.CLIENT_URL,
               };
               // This will not work on outside of localhost
-              response.cookie('X-401d25-Token', token, cookieOptions);
+              console.log(response.cookie('X-401d25-Token', token));
+              console.log(process.env.CLIENT_URL, 'what is here');
               return response.redirect(process.env.CLIENT_URL);
               // return next();
               // response.json({ token });
