@@ -46,11 +46,9 @@ authRouter.get('/api/login', basicAuthMiddleware, (request, response, next) => {
           const cookieOptions = { 
             maxAge: 7 * 1000 * 60 * 60 * 24,
             domain: process.env.CLIENT_URL,
-            httpOnly: false,
-            path: '/dashboard',
           };
           console.log(process.env.CLIENT_URL, 'ORIGINS!!!');
-          console.log(response.cookie('X-401d25-Token', token, cookieOptions));
+          response.cookie('X-401d25-Token', token);
           return response.json({ token });
         })
         .catch(next);
