@@ -53,10 +53,12 @@ googleOAuthRouter.get('/api/oauth/google', (request, response, next) => {
 
           // The front end now has no control over Google Oauth, this is all controlled by backend
           // making a check to see if I already have this Google account in the system
+          let foundAccount;
           return Account.findOne({ email })
-            .then((foundAccount) => {
+            .then((account) => {
               // if I don't have this account, create a new on in the Mongo db
-              if (!foundAccount) {
+              foundAccount = account;
+              if (!account) {
                 // TODO:
                 // Create our own account
                 // Send TOKEN back to application
@@ -67,11 +69,11 @@ googleOAuthRouter.get('/api/oauth/google', (request, response, next) => {
                 const secret = `${crypto.randomBytes(30)}${process.env.SECRET_KEY}`;
             
                 return Account.create(username, email, secret)
-                  .then((account) => {
-                    console.log(account);
+                  .then((newAccount) => {
+                    console.log(newAccount);
                     // we assign the new Google token to the tokenseed prop of our account and resave it
-                    account.tokenSeed = accessToken;
-                    return account.save();
+                    newAccount.tokenSeed = accessToken;
+                    return newAccount.save();
                   })
                   .then((updatedAccount) => {
                     console.log(updatedAccount, 'updatedAccount');
@@ -85,15 +87,21 @@ googleOAuthRouter.get('/api/oauth/google', (request, response, next) => {
                       domain: process.env.CLIENT_URL,
                     };
                     response.cookie('X-401d25-Token', signedToken);
-                    response.redirect(process.env.CLIENT_URL);
+                    return response.redirect(process.env.CLIENT_URL);
                   })
                   .catch(next);
               } else { // eslint-disable-line
                 // if we do have an account, encrypt the tokenSeed and send it back to th client
-                return jwt.sign({ tokenSeed: foundAccount.tokenSeed }, process.env.SECRET_KEY);
+                foundAccount.tokenSeed = accessToken;
+                return foundAccount.save()
+                  .then((updatedAccount) => {
+                    return jwt.sign({ tokenSeed: updatedAccount.tokenSeed }, process.env.SECRET_KEY);
+                  });
               }
             })
             .then((token) => {
+              console.log(token, 'do we have a token')
+              console.log(foundAccount, 'foundaccot')
               const cookieOptions = { 
                 maxAge: 7 * 1000 * 60 * 60 * 24,
                 domain: process.env.CLIENT_URL,
@@ -101,7 +109,7 @@ googleOAuthRouter.get('/api/oauth/google', (request, response, next) => {
               // This will not work on outside of localhost
               console.log(response.cookie('X-401d25-Token', token));
               console.log(process.env.CLIENT_URL, 'what is here');
-              return response.redirect(process.env.CLIENT_URL);
+              return response.redirect(`${process.env.CLIENT_URL}#${token}`);
               // return next();
               // response.json({ token });
             })
